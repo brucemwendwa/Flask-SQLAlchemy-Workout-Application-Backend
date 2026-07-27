@@ -16,7 +16,7 @@ Data integrity is enforced at two levels:
    so they fail fast with a readable message before a flush is ever attempted.
 """
 
-from datetime import date
+import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint, UniqueConstraint
@@ -142,10 +142,14 @@ class Workout(db.Model):
     # --- Model validations -------------------------------------------------
     @validates("date")
     def validate_date(self, key, value):
-        """A workout must have a real date and cannot be logged in the future."""
-        if not isinstance(value, date):
+        """A workout must have a real date and cannot be logged in the future.
+
+        ``datetime`` is imported as a module because the ``date`` column below
+        would otherwise shadow a bare ``date`` import inside the class body.
+        """
+        if not isinstance(value, datetime.date):
             raise ValueError("Workout date is required and must be a date.")
-        if value > date.today():
+        if value > datetime.date.today():
             raise ValueError("Workout date cannot be in the future.")
         return value
 

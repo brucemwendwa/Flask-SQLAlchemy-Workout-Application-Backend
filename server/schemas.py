@@ -6,7 +6,7 @@ keeps the nested relationships one level deep, which avoids the infinite
 recursion you would otherwise get from Workout -> Exercise -> Workout.
 """
 
-from datetime import date
+import datetime
 
 from marshmallow import (
     Schema,
@@ -81,8 +81,14 @@ class WorkoutSchema(Schema):
     @validates("date")
     def validate_date_not_future(self, value):
         """A workout can only be logged once it has happened."""
-        if value > date.today():
+        if value > datetime.date.today():
             raise ValidationError("Workout date cannot be in the future.")
+
+    @validates("notes")
+    def validate_notes_not_blank(self, value):
+        """Catch whitespace-only notes here so the error is reported per-field."""
+        if value is not None and not value.strip():
+            raise ValidationError("Notes cannot be blank; omit the field instead.")
 
     @post_load
     def make_workout(self, data, **kwargs):

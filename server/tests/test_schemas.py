@@ -53,6 +53,13 @@ class TestWorkoutSchema:
             workout_schema.load({"date": YESTERDAY, "duration_minutes": 900})
         assert "duration_minutes" in error.value.messages
 
+    def test_rejects_blank_notes(self):
+        with pytest.raises(ValidationError) as error:
+            workout_schema.load(
+                {"date": YESTERDAY, "duration_minutes": 60, "notes": "   "}
+            )
+        assert "notes" in error.value.messages
+
     def test_rejects_malformed_date(self):
         with pytest.raises(ValidationError) as error:
             workout_schema.load({"date": "not-a-date", "duration_minutes": 60})
